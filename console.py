@@ -55,6 +55,39 @@ class HBNBCommand(cmd.Cmd):
         else:
             print(storage.all()[id_obj])
 
+    def do_destroy(self, line):
+        """ Deletes an instance based on the class name and id """
+        classes = ['BaseModel']
+        if line == "":
+            print("** class name missing **")
+            return
+        tokens = line.split(" ")
+        if tokens[0] not in classes:
+            print("** class doesn't exist **")
+            return
+        if len(tokens) < 2:
+            print("** instance id missing **")
+            return
+        id_obj = str(tokens[0] + "." + tokens[1])
+        if id_obj not in storage.all():
+            print("** no instance found **")
+        else:
+            del storage.all()[id_obj]
+            storage.save()
+
+    def do_all(self, line):
+        """ Prints all string representation of all \
+        instances based or not on the class name """
+        classes = ['BaseModel']
+        if line == "":
+            l = [str(value) for key, value in storage.all().items()]
+        else:
+            tokens = line.split(" ")
+            if tokens[0] not in classes:
+                print("** class doesn't exist **")
+                return
+            l = [str(value) for key, value in storage.all().items() if type(value).__name__ == tokens[0]]
+        print(l)
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

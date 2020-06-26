@@ -6,7 +6,7 @@ from datetime import datetime
 class FileStorage():
     __file_path = "file.json"
     __objects = {}
-    
+
     def all(self):
         return FileStorage.__objects
 
