@@ -20,7 +20,7 @@ class BaseModel():
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            storage.new(self)
+        storage.new(self)
 
     def __str__(self):
         return "[{}] ({}) {}".format(self.__class__.__name__, self.id, self.__dict__)
@@ -33,6 +33,6 @@ class BaseModel():
         dic = self.__dict__.copy()
         dic['created_at'] = datetime.isoformat(dic['created_at'])
         dic['updated_at'] = datetime.isoformat(dic['updated_at'])
-        dic['__class__'] = self.__class__.__name__
+        dic['__class__'] = type(self).__name__
         return dic
 

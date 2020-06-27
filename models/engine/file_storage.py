@@ -1,11 +1,18 @@
 #!/usr/bin/python3
-
 import json
 from datetime import datetime
+
 
 class FileStorage():
     __file_path = "file.json"
     __objects = {}
+
+    def classes(self):
+        from models.base_model import BaseModel
+        from models.user import User
+
+        options = {'BaseModel': BaseModel, 'User': User}
+        return options
 
     def all(self):
         return FileStorage.__objects
@@ -21,12 +28,11 @@ class FileStorage():
 
     def reload(self):
         from models.base_model import BaseModel
+        from models.user import User
         try:
             with open(FileStorage.__file_path, 'r', encoding='utf-8') as file:
                 obj_dicts = json.load(file)
             for obj_key, obj_dic in obj_dicts.items():
-                if obj_dic['__class__'] == "BaseModel":
-                    instance = BaseModel(**obj_dic)
-                FileStorage.__objects[obj_key] = instance
+                instance = self.classes()[obj_dic['__class__']](**obj_dic)
         except:
             pass

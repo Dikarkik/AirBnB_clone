@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
-from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 from models import storage
 
@@ -10,7 +9,6 @@ class HBNBCommand(cmd.Cmd):
     """ Command interpreter """
     prompt = "(hbnb) "
     file = None
-    classes = ['BaseModel']
 
     def emptyline(self):
         return
@@ -24,11 +22,10 @@ class HBNBCommand(cmd.Cmd):
         return True
 
     def do_create(self, line):
-        """ Creates a new instance of BaseModel, \
+        """ Creates a new instance, \
         saves it (to the JSON file) and prints the id\n """
-        if line == 'BaseModel':
-            new_obj = BaseModel()
-            storage.new(new_obj)
+        if line in storage.classes():
+            new_obj = storage.classes()[line]()
             storage.save()
             print(new_obj.id)
         elif line == "":
@@ -37,14 +34,13 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
 
     def do_show(self, line):
-        """Prints the string representation of an \
+        """Prints the string representation of an
         instance based on the class name and id\n"""
-        classes = ['BaseModel']
         if line == "":
             print("** class name missing **")
             return
         tokens = line.split(" ")
-        if tokens[0] not in classes:
+        if tokens[0] not in storage.classes():
             print("** class doesn't exist **")
             return
         if len(tokens) < 2:
@@ -58,12 +54,11 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, line):
         """ Deletes an instance based on the class name and id """
-        classes = ['BaseModel']
         if line == "":
             print("** class name missing **")
             return
         tokens = line.split(" ")
-        if tokens[0] not in classes:
+        if tokens[0] not in storage.classes():
             print("** class doesn't exist **")
             return
         if len(tokens) < 2:
@@ -83,10 +78,11 @@ class HBNBCommand(cmd.Cmd):
             l = [str(value) for key, value in storage.all().items()]
         else:
             tokens = line.split(" ")
-            if tokens[0] not in HBNBCommand.classes:
+            if tokens[0] not in storage.classes():
                 print("** class doesn't exist **")
                 return
-            l = [str(value) for key, value in storage.all().items() if type(value).__name__ == tokens[0]]
+            l = [str(value) for key, value in storage.all().items()
+                 if type(value).__name__ == tokens[0]]
         print(l)
 
     def do_update(self, line):
@@ -98,7 +94,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
         tokens = line.split(" ")
-        if tokens[0] not in HBNBCommand.classes:
+        if tokens[0] not in storage.classes():
             print("** class doesn't exist **")
             return
         if len(tokens) < 2:
