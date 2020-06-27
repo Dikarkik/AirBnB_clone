@@ -81,7 +81,7 @@ class HBNBCommand(cmd.Cmd):
         """ Prints all string representation of all \
         instances based or not on the class name\n
         """
-        if line == "":
+        if not line or line == "":
             l = [str(value) for key, value in storage.all().items()]
         else:
             tokens = line.split(" ")
@@ -124,6 +124,21 @@ class HBNBCommand(cmd.Cmd):
             value = tokens[3]
         setattr(storage.all()[tokens[0] + "." + tokens[1]], tokens[2], value)
         storage.save()
+
+    def default(self, line):
+        """ this method process commands in python OOP notation 
+        - <class name>.all()
+        - <class name>.show(<id>)
+        - <class name>.destroy(<id>)
+        - <class name>.update(<id>, <attribute name>, <attribute value>)
+        """
+        tokens = line.split(".")
+        cl = tokens[0]
+        cmd = tokens[1].split('(')[0]
+        args = tokens[1].split('(')[1].replace(')', "").split(", ")
+        string = cmd + " " + cl + " " + \
+            " ".join(elem.replace('"', "") for elem in args)
+        self.onecmd(string)
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
