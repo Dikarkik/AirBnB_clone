@@ -9,6 +9,7 @@ class HBNBCommand(cmd.Cmd):
     """ Command interpreter """
     prompt = "(hbnb) "
     file = None
+    methods_lists = ['all', 'show', 'count', 'update', 'destroy']
 
     def emptyline(self):
         """ Do nothing """
@@ -125,6 +126,19 @@ class HBNBCommand(cmd.Cmd):
         setattr(storage.all()[tokens[0] + "." + tokens[1]], tokens[2], value)
         storage.save()
 
+    def do_count(self, line):
+        """ retrieve the number of instances of a class """
+        if not line or line == "":
+            pass
+        else:
+            tokens = line.split(" ")
+            if tokens[0] not in storage.classes():
+                print("** class doesn't exist **")
+                return
+            l = [str(value) for key, value in storage.all().items()
+                 if type(value).__name__ == tokens[0]]
+        print(len(l))
+
     def default(self, line):
         """ this method process commands in python OOP notation 
         - <class name>.all()
@@ -132,13 +146,17 @@ class HBNBCommand(cmd.Cmd):
         - <class name>.destroy(<id>)
         - <class name>.update(<id>, <attribute name>, <attribute value>)
         """
-        tokens = line.split(".")
-        cl = tokens[0]
-        cmd = tokens[1].split('(')[0]
-        args = tokens[1].split('(')[1].replace(')', "").split(", ")
-        string = cmd + " " + cl + " " + \
-            " ".join(elem.replace('"', "") for elem in args)
-        self.onecmd(string)
+        if '.' in line and '(' in line and ')' in line:
+            tokens = line.split(".")
+            cl = tokens[0]
+            cmd = tokens[1].split('(')[0]
+            if cmd in HBNBCommand.methods_lists:
+                args = tokens[1].split('(')[1].replace(')', "").split(", ")
+                string = cmd + " " + cl + " " + \
+                    " ".join(elem.replace('"', "") for elem in args)
+                self.onecmd(string)
+                return
+        print("*** Unknown syntax: {}".format(line))
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
