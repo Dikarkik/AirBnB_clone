@@ -120,7 +120,7 @@ class HBNBCommand(cmd.Cmd):
             dic = json.loads(" ".join(elem for elem in tokens[2:]))
             for key, value in dic.items():
                 setattr(storage.all()[tokens[0] + "." + tokens[1]], key, value)
-            storage.save()
+                storage.all()[tokens[0] + "." + tokens[1]].save()
             return
         if len(tokens) < 4:
             print("** value missing **")
@@ -141,11 +141,7 @@ class HBNBCommand(cmd.Cmd):
             except ValueError:
                 pass
         setattr(storage.all()[tokens[0] + "." + tokens[1]], tokens[2], value)
-        storage.save()
-
-    def prueba(self):
-        """ prueba """
-        pass
+        storage.all()[tokens[0] + "." + tokens[1]].save()
 
     def do_count(self, line):
         """ retrieve the number of instances of a class """
