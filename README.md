@@ -1,3 +1,5 @@
+![AirBnB_clone](AirBnB.png?raw=true "Title")
+
 # AirBnB clone - The console
 
 'The console' is a command interpreter to manage the AirBnB objects:
