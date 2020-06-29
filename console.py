@@ -3,12 +3,12 @@
 import cmd
 from models.engine.file_storage import FileStorage
 from models import storage
+import json
 
 
 class HBNBCommand(cmd.Cmd):
     """ Command interpreter """
     prompt = "(hbnb) "
-    file = None
     methods_lists = ['all', 'show', 'count', 'update', 'destroy']
 
     def emptyline(self):
@@ -18,6 +18,7 @@ class HBNBCommand(cmd.Cmd):
     def do_EOF(self, line):
         """ EOF command to exit the program\n
         """
+        print ()
         return True
 
     def do_quit(self, line):
@@ -115,6 +116,12 @@ class HBNBCommand(cmd.Cmd):
         if len(tokens) < 3:
             print("** attribute name missing **")
             return
+        if '{' in tokens[2]:
+            dic = json.loads(" ".join(elem for elem in tokens[2:]))
+            for key, value in dic.items():
+                setattr(storage.all()[tokens[0] + "." + tokens[1]], key, value)
+            storage.save()
+            return
         if len(tokens) < 4:
             print("** value missing **")
             return
@@ -123,8 +130,22 @@ class HBNBCommand(cmd.Cmd):
             value = value.split('"')[1]
         else:
             value = tokens[3]
+        if '.' in value:
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+        else:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
         setattr(storage.all()[tokens[0] + "." + tokens[1]], tokens[2], value)
         storage.save()
+
+    def prueba(self):
+        """ prueba """
+        pass
 
     def do_count(self, line):
         """ retrieve the number of instances of a class """
@@ -152,8 +173,13 @@ class HBNBCommand(cmd.Cmd):
             cmd = tokens[1].split('(')[0]
             if cmd in HBNBCommand.methods_lists:
                 args = tokens[1].split('(')[1].replace(')', "").split(", ")
-                string = cmd + " " + cl + " " + \
-                    " ".join(elem.replace('"', "") for elem in args)
+                print("ARGSSSSS: {}".format(args))
+                if cmd == 'update' and '{' in args[1]:
+                    string = cmd + " " + cl + " " + args[0].replace('"', "") + " " + ", ".join(elem for elem in args[1:]).replace("'", '"')
+                    print("STRING: " + string)
+                else:
+                    string = cmd + " " + cl + " " + \
+                        " ".join(elem.replace('"', "") for elem in args)
                 self.onecmd(string)
                 return
         print("*** Unknown syntax: {}".format(line))
