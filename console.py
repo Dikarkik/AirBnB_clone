@@ -16,20 +16,17 @@ class HBNBCommand(cmd.Cmd):
         return
 
     def do_EOF(self, line):
-        """ EOF command to exit the program\n
-        """
+        """EOF command to exit the program\n"""
         print ()
         return True
 
     def do_quit(self, line):
-        """ Quit command to exit the program\n
-        """
+        """Quit command to exit the program\n"""
         return True
 
     def do_create(self, line):
-        """ Creates a new instance, \
-        saves it (to the JSON file) and prints the id\n
-        """
+        """Creates a new instance, \
+saves it (to the JSON file) and prints the id\n"""
         if line in storage.classes():
             new_obj = storage.classes()[line]()
             storage.save()
@@ -40,9 +37,8 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
 
     def do_show(self, line):
-        """ Prints the string representation of an
-        instance based on the class name and id\n
-        """
+        """Prints the string representation of an \
+instance based on the class name and id\n"""
         if line == "":
             print("** class name missing **")
             return
@@ -60,8 +56,7 @@ class HBNBCommand(cmd.Cmd):
             print(storage.all()[id_obj])
 
     def do_destroy(self, line):
-        """ Deletes an instance based on the class name and id\n
-        """
+        """Deletes an instance based on the class name and id\n"""
         if line == "":
             print("** class name missing **")
             return
@@ -80,9 +75,8 @@ class HBNBCommand(cmd.Cmd):
             storage.save()
 
     def do_all(self, line):
-        """ Prints all string representation of all \
-        instances based or not on the class name\n
-        """
+        """Prints all string representation of all \
+instances based or not on the class name\n"""
         if not line or line == "":
             l = [str(value) for key, value in storage.all().items()]
         else:
@@ -95,10 +89,9 @@ class HBNBCommand(cmd.Cmd):
         print(l)
 
     def do_update(self, line):
-        """ Updates an instance based on the class name and id
-        by adding or updating attribute (save the change into the JSON file).
-        Usage: update <class name> <id> <attribute name> "<attribute value>"\n
-        """
+        """Updates an instance based on the class name and id \
+by adding or updating attribute (save the change into the JSON file).
+Usage: update <class name> <id> <attribute name> "<attribute value>"\n"""
         if line == "":
             print("** class name missing **")
             return
@@ -144,7 +137,7 @@ class HBNBCommand(cmd.Cmd):
         storage.all()[tokens[0] + "." + tokens[1]].save()
 
     def do_count(self, line):
-        """ retrieve the number of instances of a class """
+        """Retrieve the number of instances of a class\n"""
         if not line or line == "":
             pass
         else:
@@ -169,10 +162,9 @@ class HBNBCommand(cmd.Cmd):
             cmd = tokens[1].split('(')[0]
             if cmd in HBNBCommand.methods_lists:
                 args = tokens[1].split('(')[1].replace(')', "").split(", ")
-                print("ARGSSSSS: {}".format(args))
                 if cmd == 'update' and '{' in args[1]:
-                    string = cmd + " " + cl + " " + args[0].replace('"', "") + " " + ", ".join(elem for elem in args[1:]).replace("'", '"')
-                    print("STRING: " + string)
+                    string = cmd + " " + cl + " " + args[0].replace('"', "") \
+                        + " " + ", ".join(elem for elem in args[1:]).replace("'", '"')
                 else:
                     string = cmd + " " + cl + " " + \
                         " ".join(elem.replace('"', "") for elem in args)
