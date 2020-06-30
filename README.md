@@ -1,4 +1,4 @@
-![AirBnB_clone](AirBnB.png?raw=true "Title")
+![AirBnB_clone](/images/AirBnB.png?raw=true "Title")
 
 # AirBnB clone - The console
 
@@ -11,20 +11,21 @@
 - Destroy an object.
 
 With this console we have a simple flow of serialization/deserialization:
+
 Instance <-> Dictionary <-> JSON string <-> file.
 
 This is the first step towards building a full web application: the AirBnB clone. This will be used with all other following projects: HTML/CSS templating, database storage, API, front-end integration, etc.
 
-![AirBnB_clone](AirBnB_clone.png?raw=true "Title")
+![AirBnB_clone](/images/AirBnB_clone.png?raw=true "Title")
 
-#### classes:
+### classes:
 - `BaseModel`: parent class to take care of the initialization and serialization of future instances.
 - `City`, `Place`, `Review`, `State`, `User`, `Amenity`: objects used for AirBnB, they inherit from `BaseModel`.
 - `FileStorage`: storage engine to save objects, serialization and deserialization.
 - `HBNBCommand`: The console to manage the AirBnB objects (this console was made with the module 'cmd').
 
 
-#### How to start the console:
+### How to start the console:
 ```
 $ ./console.py
 ```
@@ -58,7 +59,7 @@ $
 ```
 
 
-#### How to use the console:
+### How to use the console:
 
 - `quit` and `EOF` to exit the program.
 	```
@@ -126,7 +127,7 @@ $
 	(hbnb)
 	```
 
-#### Using the console by class name:
+### Using the console by class name:
 
 - `<class name>.all()`: to retrieve all instances of a class.
 - `<class name>.count()`: to retrieve the number of instances of a class.
@@ -135,5 +136,16 @@ $
 - `<class name>.update(<id>, <attribute name>, <attribute value>)`: to update an instance based on his ID.
 - `<class name>.update(<id>, <dictionary representation>)`: to update an instance based on his ID with a dictionary.
 
-#### Run unittests
+### Run unittests
 `python3 -m unittest discover tests`
+
+### Diagram of the program
+
+![diagram](/images/program_diagram.jpg?raw=true "Title")
+
+When the console is started, it imports `storage`, which is an instance of the storage engine (`class FileStorage`). The file in change to create this instance is `/models/__init__.py`, whish also call the method `reload()` of `storage` just after the creation of this instance.
+
+`reload()` deserialize the `file.json` file, which contains all the JSON string representation of the AirBnB objects (`User`, `City`, `Place`, `Review`, `Amenity`, `State`) and add all those objects to the dictionary `objects` (which is a class attribute of `class FileStorage`).
+
+### Example of command create
+![diagram](/images/command_create.jpg?raw=true "Title")
