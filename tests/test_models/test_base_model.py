@@ -13,6 +13,8 @@ import unittest
 import json
 import time
 from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
+from models import storage
 
 
 class TestBaseModel(unittest.TestCase):
@@ -72,6 +74,7 @@ class TestBaseModel(unittest.TestCase):
         time.sleep(0.1)
         b.save()
         self.assertFalse(b.updated_at is "2020-06-29T15:27:48.421148")
+        self.assertTrue("BaseModel.f7f99" in FileStorage._FileStorage__objects)
 
     """
     ------------------------------------------------------------
