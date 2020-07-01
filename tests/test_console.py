@@ -7,22 +7,22 @@ class HBNBCommand:
     2. do_quit(self, line)
     3. do_create(self, line)
     4. do_show(self, line)
+    --- <class name>.show(<id>)
     5. do_destroy(self, line)
+    --- <class name>.destroy(<id>)
     6. do_all(self, line)
+    --- <class name>.all()
     7. do_update(self, line)
+    --- <class name>.update(<id>, <attribute name>, <attribute value>)
+    --- <class name>.update(<id>, <dictionary representation>)
     8. do_count(self, line)
+    --- <class name>.count()
     9. default(self, line)
-    9.1. <class name>.all(): call 'do_all'.
-    9.2. <class name>.count(): call 'count'.
-    9.3. <class name>.show(<id>): call 'show'.
-    9.4. <class name>.destroy(<id>): call 'destroy'.
-    9.5. <class name>.update(<id>, <attribute name>, <attribute value>):
-         call 'update'.
-    9.6. <class name>.update(<id>, <dictionary representation>): call 'update'.
 
 python3 -m unittest tests/test_console.py
 """
 import unittest
+import json
 from unittest.mock import patch
 from io import StringIO
 from console import HBNBCommand
@@ -180,7 +180,8 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
     ------------------------------------------------------------
     """
     def test_do_show(self):
-        """ test if command 'show <class name> <id>' works """
+        """ test if command 'show <class name> <id>'
+        and '<class name>.show(<id>)' works """
         console = HBNBCommand()
         for className, Cls in self.classes().items():
             dictionary = {'__class__': className,
@@ -193,6 +194,11 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
             result = f.getvalue().split()
             self.assertEqual(result[0], "[{}]".format(className))
             self.assertEqual(result[1], "(1128)")
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd('{}.show("1128")'.format(className))
+            result2 = f.getvalue().split()
+            self.assertEqual(result2[0], "[{}]".format(className))
+            self.assertEqual(result2[1], "(1128)")
 
         """ test error message when <class name> is missing """
         with patch('sys.stdout', new=StringIO()) as f:
@@ -220,7 +226,8 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
     ------------------------------------------------------------
     """
     def test_do_destroy(self):
-        """ test if command 'destroy <class name> <id>' works """
+        """ test if command 'destroy <class name> <id>'
+        and '<class name>.destroy(<id>)' works """
         dictionary = {'__class__': "User",
                       'id': "1128",
                       'created_at': "2020-06-29T15:27:48.421135",
@@ -229,6 +236,10 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
             u = Cls(**dictionary)
             with patch('sys.stdout', new=StringIO()) as f:
                 HBNBCommand().onecmd("destroy {} 1128".format(className))
+            self.assertFalse(FileStorage._FileStorage__objects.get("1128"))
+            u = Cls(**dictionary)
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd("{}.destroy(1128)".format(className))
             self.assertFalse(FileStorage._FileStorage__objects.get("1128"))
 
         """ test error message when <class name> is missing """
@@ -240,16 +251,57 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("destroy NotExistClass")
         self.assertEqual(f.getvalue(), "** class doesn't exist **\n")
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("NotExistClass.destroy(1128)")
+        self.assertEqual(f.getvalue(), "** class doesn't exist **\n")
 
         """ test error message when <id> is missing """
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("destroy User")
+        self.assertEqual(f.getvalue(), "** instance id missing **\n")
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd('User.destroy()')
         self.assertEqual(f.getvalue(), "** instance id missing **\n")
 
         """ test error message when no instance found """
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("destroy User 000")
         self.assertEqual(f.getvalue(), "** no instance found **\n")
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd('User.destroy("000")')
+        self.assertEqual(f.getvalue(), "** no instance found **\n")
+
+    """
+    ------------------------------------------------------------
+    6. do_all(self, line)
+    ------------------------------------------------------------
+    """
+    def test_do_all(self):
+        """ test if command 'all <class name>'
+        and '<class name>.all()' works """
+        console = HBNBCommand()
+        with patch('sys.stdout', new=StringIO()) as f:
+            console.onecmd("all")
+        self.assertEqual(len(json.loads(f.getvalue())), 0)
+        u = self.classes()['User']()
+        with patch('sys.stdout', new=StringIO()) as f:
+            console.onecmd("all")
+        self.assertEqual(len(json.loads(f.getvalue())), 1)
+
+        self.setUp()
+        for className, Cls in self.classes().items():
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("all {}".format(className))
+            self.assertEqual(len(json.loads(f.getvalue())), 0)
+            u = Cls()
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("all {}".format(className))
+            self.assertEqual(len(json.loads(f.getvalue())), 1)
+
+        """ test error message when <class name> doesn't exist """
+        with patch('sys.stdout', new=StringIO()) as f:
+            console.onecmd("all NotExistClass")
+        self.assertEqual(f.getvalue(), "** class doesn't exist **\n")
 
     """
     ------------------------------------------------------------
@@ -257,14 +309,31 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
     ------------------------------------------------------------
     """
     def test_do_update(self):
-        """ test if the value of type str is correctly stored """
+        """ test if command 'update <class name> <id> <attribute name> <attribute value>'
+        and '<class name>.update(<id>, <attribute name>, <attribute value>)' works
+        and <class name>.update(<id>, <dictionary representation>) """
+
         for className, Cls in self.classes().items():
             u = Cls()
 
+            """ command 'update <class name> <id> <attribute name> <attribute value>' """
             with patch('sys.stdout', new=StringIO()) as f:
                 HBNBCommand().onecmd('update {} {} string "text"'.format(className, u.id))
             self.assertTrue(u.string == "text")
             self.assertIsInstance(u.string, str)
+            
+            """ command '<class name>.update(<id>, <attribute name>, <attribute value>)' """
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd('{}.update("{}", string, "text")'.format(className, u.id))
+            self.assertTrue(u.string == "text")
+            self.assertIsInstance(u.string, str)
+            
+            """ command <class name>.update(<id>, <dictionary representation>) """
+            dic = {'first_name': "John", "age": 89}
+            with patch('sys.stdout', new=StringIO()) as f:
+                HBNBCommand().onecmd('{}.update("{}", {})'.format(className, u.id, dic))
+            self.assertTrue(u.first_name == "John")
+            self.assertTrue(u.age == 89)
 
             """ test if the value of type int is correctly stored """
             with patch('sys.stdout', new=StringIO()) as f:
@@ -322,3 +391,46 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("update User {} attribute".format(user.id))
         self.assertEqual(f.getvalue(), "** value missing **\n")
+
+    """
+    ------------------------------------------------------------
+    8. do_count(self, line)
+    ------------------------------------------------------------
+    """
+    def test_do_count(self):
+        """ test if command 'count <class name>' and '<class name>.count()'
+         prints the number of instances of a class """
+        console = HBNBCommand()
+        for className, Cls in self.classes().items():
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("count {}".format(className))
+                self.assertEqual(f.getvalue(), '0\n')
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("{}.count()".format(className))
+                self.assertEqual(f.getvalue(), '0\n')
+            i1 = Cls()
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("count {}".format(className))
+                self.assertEqual(f.getvalue(), '1\n')
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("{}.count()".format(className))
+                self.assertEqual(f.getvalue(), '1\n')
+            i2 = Cls()
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("count {}".format(className))
+                self.assertEqual(f.getvalue(), '2\n')
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("{}.count()".format(className))
+                self.assertEqual(f.getvalue(), '2\n')
+            i3 = Cls()
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("count {}".format(className))
+                self.assertEqual(f.getvalue(), '3\n')
+            with patch('sys.stdout', new=StringIO()) as f:
+                console.onecmd("{}.count()".format(className))
+                self.assertEqual(f.getvalue(), '3\n')
+
+        """ test when <class name> doesn't exist """
+        with patch('sys.stdout', new=StringIO()) as f:
+            console.onecmd("count NotExistClass")
+        self.assertEqual(f.getvalue(), "0\n")

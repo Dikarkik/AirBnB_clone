@@ -142,9 +142,6 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n"""
             pass
         else:
             tokens = line.split(" ")
-            if tokens[0] not in storage.classes():
-                print("** class doesn't exist **")
-                return
             l = [str(value) for key, value in storage.all().items()
                  if type(value).__name__ == tokens[0]]
         print(len(l))
