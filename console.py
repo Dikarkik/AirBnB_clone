@@ -17,7 +17,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_EOF(self, line):
         """EOF command to exit the program\n"""
-        print ()
+        print()
         return True
 
     def do_quit(self, line):
@@ -150,11 +150,13 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n"""
         print(len(l))
 
     def default(self, line):
-        """ this method process commands in python OOP notation 
+        """ this method process commands in python OOP notation
         - <class name>.all()
+        - <class name>.count()
         - <class name>.show(<id>)
         - <class name>.destroy(<id>)
         - <class name>.update(<id>, <attribute name>, <attribute value>)
+        - <class name>.update(<id>, <dictionary representation>)
         """
         if '.' in line and '(' in line and ')' in line:
             tokens = line.split(".")
@@ -163,8 +165,8 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n"""
             if cmd in HBNBCommand.methods_lists:
                 args = tokens[1].split('(')[1].replace(')', "").split(", ")
                 if cmd == 'update' and '{' in args[1]:
-                    string = cmd + " " + cl + " " + args[0].replace('"', "") \
-                        + " " + ", ".join(elem for elem in args[1:]).replace("'", '"')
+                    string = cmd + " " + cl + " " + args[0].replace('"', "") +\
+                        " " + ", ".join(e for e in args[1:]).replace("'", '"')
                 else:
                     string = cmd + " " + cl + " " + \
                         " ".join(elem.replace('"', "") for elem in args)

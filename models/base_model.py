@@ -20,7 +20,8 @@ class BaseModel():
         if kwargs and len(kwargs) > 0:
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
-                    setattr(self, key, datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
+                    setattr(self, key, datetime.strptime
+                            (value, "%Y-%m-%dT%H:%M:%S.%f"))
                 elif key != "__class__":
                     setattr(self, key, value)
         else:
@@ -31,7 +32,8 @@ class BaseModel():
 
     def __str__(self):
         """ Should print: [<class name>] (<self.id>) <self.__dict__> """
-        return "[{}] ({}) {}".format(self.__class__.__name__, self.id, self.__dict__)
+        return "[{}] ({}) {}".format(type(self).__name__,
+                                     self.id, self.__dict__)
 
     def save(self):
         """ Updates the public instance attribute
@@ -49,4 +51,3 @@ class BaseModel():
         dic['updated_at'] = datetime.isoformat(dic['updated_at'])
         dic['__class__'] = type(self).__name__
         return dic
-
