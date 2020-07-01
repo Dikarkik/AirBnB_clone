@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
-""" test BaseModel """
-import unittest, json, time
+""" Unittest for ``/models/base_model.py``
+
+class FileStorage:
+    0. __init__(self, *args, **kwargs)
+    1. __str__(self)
+    2. save(self)
+    3. to_dict(self)
+
+python3 -m unittest tests/test_models/test_base_model.py
+"""
+import unittest
+import json
+import time
 from models.base_model import BaseModel
 
 
 class TestBaseModel(unittest.TestCase):
-    """ tests """
-
+    """
+    ------------------------------------------------------------
+    0. __init__(self, *args, **kwargs)
+    ------------------------------------------------------------
+    """
     def test_init(self):
-        """ def __init__(self, *args, **kwargs) """
-
+        """ test constructor: defalt, with **kwargs (*args won’t be used) """
         b = BaseModel()
         self.assertTrue('id' in b.__dict__)
         self.assertTrue('created_at' in b.__dict__)
@@ -28,18 +41,49 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue('updated_at' in b2.__dict__)
         self.assertTrue('name' in b2.__dict__)
 
+    """
+    ------------------------------------------------------------
+    1. __str__(self)
+    ------------------------------------------------------------
+    """
     def test_str(self):
-        """ test the string representation of a BaseModel instance """
+        """ test the string representation of a 'BaseModel' instance,
+        must be [<class name>] (<self.id>) <self.__dict__> """
         b = BaseModel()
         result = b.__str__()
         token = result.split()
         self.assertEqual(token[0], '[BaseModel]')
+        self.assertEqual(token[1], "(" + b.__dict__['id'] + ")")
+        " compare the dict of the 3th section with b.__dict__ "
+        just_dict = (b.__str__()).split('{')
+        self.assertEqual(just_dict[1], (str(b.__dict__)).split('{')[1])
 
+    """
+    ------------------------------------------------------------
+    2. save(self)
+    ------------------------------------------------------------
+    """
     def test_save(self):
+        """ test if 'save' updates the value of 'updated_at' """
         b = BaseModel(**{'__class__': "SomeClass",
-                              'id': "f7f99",
-                              'created_at': "2020-06-29T15:27:48.421135",
-                              'updated_at': "2020-06-29T15:27:48.421148",})
+                         'id': "f7f99",
+                         'created_at': "2020-06-29T15:27:48.421135",
+                         'updated_at': "2020-06-29T15:27:48.421148"})
         time.sleep(0.1)
         b.save()
-        self.assertTrue(b.updated_at is not "2020-06-29T15:27:48.421148")
+        self.assertFalse(b.updated_at is "2020-06-29T15:27:48.421148")
+
+    """
+    ------------------------------------------------------------
+    3. to_dict(self)
+    ------------------------------------------------------------
+    """
+    def test_to_dict(self):
+        """ test if 'to_dict' returns the '__dict__' attributes with some changes:
+        -> add '__class__': <class name>
+        -> value of 'created_at' in iso format
+        -> value of 'updated_at' in iso format """
+        b = BaseModel()
+        self.assertTrue('__class__' in b.to_dict())
+        self.assertIsInstance(b.to_dict()['created_at'], str)
+        self.assertIsInstance(b.to_dict()['updated_at'], str)
