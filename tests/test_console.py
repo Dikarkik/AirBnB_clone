@@ -58,7 +58,7 @@ class TestConsole(unittest.TestCase):
 
     """
     ------------------------------------------------------------
-    Tests unknown sintax
+    Tests to breack the console
     ------------------------------------------------------------
     """
     def test_unknown_sintax(self):
@@ -67,6 +67,23 @@ class TestConsole(unittest.TestCase):
             HBNBCommand().onecmd("helppp")
         self.assertEqual(f.getvalue(), "*** Unknown syntax: helppp\n")
 
+    def test_empty(self):
+        """ test emplty """
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("")
+        self.assertEqual(f.getvalue(), "")
+
+    def test_space(self):
+        """ test space """
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd(" ")
+        self.assertEqual(f.getvalue(), "")
+
+    def test_tab(self):
+        """ test tab """
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("\t")
+        self.assertEqual(f.getvalue(), "")
     """
     ------------------------------------------------------------
     Tests for 'help' (this is in the 'cmd' module)
@@ -195,21 +212,17 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
         and '<class name>.show(<id>)' works """
         console = HBNBCommand()
         for className, Cls in self.classes().items():
-            dictionary = {'__class__': className,
-                          'id': "1128",
-                          'created_at': "2020-06-29T15:27:48.421135",
-                          'updated_at': "2020-06-29T15:27:48.421148"}
-            u = Cls(**dictionary)
+            u = Cls()
             with patch('sys.stdout', new=StringIO()) as f:
-                console.onecmd("show {} 1128".format(className))
+                console.onecmd("show {} {}".format(className, u.id))
             result = f.getvalue().split()
             self.assertEqual(result[0], "[{}]".format(className))
-            self.assertEqual(result[1], "(1128)")
+            self.assertEqual(result[1], "({})".format(u.id))
             with patch('sys.stdout', new=StringIO()) as f:
-                console.onecmd('{}.show("1128")'.format(className))
-            result2 = f.getvalue().split()
-            self.assertEqual(result2[0], "[{}]".format(className))
-            self.assertEqual(result2[1], "(1128)")
+                console.onecmd('{}.show("{}")'.format(className, u.id))
+            result = f.getvalue().split()
+            self.assertEqual(result[0], "[{}]".format(className))
+            self.assertEqual(result[1], "({})".format(u.id))
 
         """ test error message when <class name> is missing """
         with patch('sys.stdout', new=StringIO()) as f:
@@ -239,19 +252,15 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
     def test_do_destroy(self):
         """ test if command 'destroy <class name> <id>'
         and '<class name>.destroy(<id>)' works """
-        dictionary = {'__class__': "User",
-                      'id': "1128",
-                      'created_at': "2020-06-29T15:27:48.421135",
-                      'updated_at': "2020-06-29T15:27:48.421148"}
         for className, Cls in self.classes().items():
-            u = Cls(**dictionary)
+            u = Cls()
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd("destroy {} 1128".format(className))
-            self.assertFalse(FileStorage._FileStorage__objects.get("1128"))
-            u = Cls(**dictionary)
+                HBNBCommand().onecmd("destroy {} {}".format(className, u.id))
+            self.assertFalse(FileStorage._FileStorage__objects.get(u.id))
+            u = Cls()
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd("{}.destroy(1128)".format(className))
-            self.assertFalse(FileStorage._FileStorage__objects.get("1128"))
+                HBNBCommand().onecmd("{}.destroy({})".format(className, u.id))
+            self.assertFalse(FileStorage._FileStorage__objects.get(u.id))
 
         """ test error message when <class name> is missing """
         with patch('sys.stdout', new=StringIO()) as f:
