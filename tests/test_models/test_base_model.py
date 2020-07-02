@@ -73,3 +73,18 @@ class TestBaseModel(unittest.TestCase):
         b.save()
         value2 = b.updated_at
         self.assertNotEqual(value1, value2)
+
+    """
+    ------------------------------------------------------------
+    3. to_dict(self)
+    ------------------------------------------------------------
+    """
+    def test_to_dict(self):
+        """ test if 'to_dict' returns the '__dict__' attributes with some changes:
+        -> add '__class__': <class name>
+        -> value of 'created_at' in iso format
+        -> value of 'updated_at' in iso format """
+        b = BaseModel()
+        self.assertTrue('__class__' in b.to_dict())
+        self.assertIsInstance(b.to_dict()['created_at'], str)
+        self.assertIsInstance(b.to_dict()['updated_at'], str)
