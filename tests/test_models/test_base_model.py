@@ -11,6 +11,7 @@ python3 -m unittest tests/test_models/test_base_model.py
 """
 import unittest
 import json
+import time
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 from models import storage
@@ -68,21 +69,7 @@ class TestBaseModel(unittest.TestCase):
         """ test if 'save' updates the value of 'updated_at' """
         b = BaseModel()
         value1 = b.updated_at
+        time.sleep(0.5)
         b.save()
         value2 = b.updated_at
         self.assertNotEqual(value1, value2)
-
-    """
-    ------------------------------------------------------------
-    3. to_dict(self)
-    ------------------------------------------------------------
-    """
-    def test_to_dict(self):
-        """ test if 'to_dict' returns the '__dict__' attributes with some changes:
-        -> add '__class__': <class name>
-        -> value of 'created_at' in iso format
-        -> value of 'updated_at' in iso format """
-        b = BaseModel()
-        self.assertTrue('__class__' in b.to_dict())
-        self.assertIsInstance(b.to_dict()['created_at'], str)
-        self.assertIsInstance(b.to_dict()['updated_at'], str)
