@@ -66,13 +66,11 @@ class TestBaseModel(unittest.TestCase):
     """
     def test_save(self):
         """ test if 'save' updates the value of 'updated_at' """
-        b = BaseModel(**{'__class__': "SomeClass",
-                         'id': "f7f99",
-                         'created_at': "2020-06-29T15:27:48.421135",
-                         'updated_at': "2020-06-29T15:27:48.421148"})
+        b = BaseModel()
+        value1 = b.updated_at
         b.save()
-        self.assertFalse(b.updated_at == "2020-06-29T15:27:48.421148")
-        self.assertTrue("BaseModel.f7f99" in FileStorage._FileStorage__objects)
+        value2 = b.updated_at
+        self.assertNotEqual(value1, value2)
 
     """
     ------------------------------------------------------------
