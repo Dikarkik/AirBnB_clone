@@ -58,6 +58,17 @@ class TestConsole(unittest.TestCase):
 
     """
     ------------------------------------------------------------
+    Tests unknown sintax
+    ------------------------------------------------------------
+    """
+    def test_unknown_sintax(self):
+        """ test invalid commands """
+        with patch('sys.stdout', new=StringIO()) as f:
+            HBNBCommand().onecmd("helppp")
+        self.assertEqual(f.getvalue(), "*** Unknown syntax: helppp\n")
+
+    """
+    ------------------------------------------------------------
     Tests for 'help' (this is in the 'cmd' module)
     ------------------------------------------------------------
     """
@@ -185,9 +196,9 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
         console = HBNBCommand()
         for className, Cls in self.classes().items():
             dictionary = {'__class__': className,
-                        'id': "1128",
-                        'created_at': "2020-06-29T15:27:48.421135",
-                        'updated_at': "2020-06-29T15:27:48.421148"}
+                          'id': "1128",
+                          'created_at': "2020-06-29T15:27:48.421135",
+                          'updated_at': "2020-06-29T15:27:48.421148"}
             u = Cls(**dictionary)
             with patch('sys.stdout', new=StringIO()) as f:
                 console.onecmd("show {} 1128".format(className))
@@ -309,55 +320,63 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
     ------------------------------------------------------------
     """
     def test_do_update(self):
-        """ test if command 'update <class name> <id> <attribute name> <attribute value>'
-        and '<class name>.update(<id>, <attribute name>, <attribute value>)' works
+        """ test command
+        'update <class name> <id> <attribute name> <attribute value>'
+        and '<class name>.update(<id>, <attribute name>, <attribute value>)'
         and <class name>.update(<id>, <dictionary representation>) """
 
         for className, Cls in self.classes().items():
             u = Cls()
 
-            """ command 'update <class name> <id> <attribute name> <attribute value>' """
+            """ 'update <class name> <id> <attr name> <attr value>' """
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('update {} {} string "text"'.format(className, u.id))
+                HBNBCommand().onecmd('update {} {} string "text"'
+                                     .format(className, u.id))
             self.assertTrue(u.string == "text")
             self.assertIsInstance(u.string, str)
-            
-            """ command '<class name>.update(<id>, <attribute name>, <attribute value>)' """
+
+            """ '<class name>.update(<id>, <attr name>, <attr value>)' """
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('{}.update("{}", string, "text")'.format(className, u.id))
+                HBNBCommand().onecmd('{}.update("{}", string, "text")'
+                                     .format(className, u.id))
             self.assertTrue(u.string == "text")
             self.assertIsInstance(u.string, str)
-            
-            """ command <class name>.update(<id>, <dictionary representation>) """
+
+            """ <class name>.update(<id>, <dictionary representation>) """
             dic = {'first_name': "John", "age": 89}
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('{}.update("{}", {})'.format(className, u.id, dic))
+                HBNBCommand().onecmd('{}.update("{}", {})'
+                                     .format(className, u.id, dic))
             self.assertTrue(u.first_name == "John")
             self.assertTrue(u.age == 89)
 
             """ test if the value of type int is correctly stored """
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('update {} {} int 100'.format(className, u.id))
+                HBNBCommand().onecmd('update {} {} int 100'
+                                     .format(className, u.id))
             self.assertTrue(u.int == 100)
             self.assertIsInstance(u.int, int)
 
             """ test if the value of type float is correctly stored """
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('update {} {} float 98.5'.format(className, u.id))
+                HBNBCommand().onecmd('update {} {} float 98.5'
+                                     .format(className, u.id))
             self.assertTrue(u.float == 98.5)
             self.assertIsInstance(u.float, float)
 
             """ test if the value of type str is correctly stored
             (the value starts whith integers. ex: "98.5caraji")"""
             with patch('sys.stdout', new=StringIO()) as f:
-                HBNBCommand().onecmd('update {} {} fake 98.5caraji'.format(className, u.id))
+                HBNBCommand().onecmd('update {} {} fake 98.5caraji'
+                                     .format(className, u.id))
             self.assertTrue(u.fake == "98.5caraji")
             self.assertIsInstance(u.fake, str)
 
-            """ test if the values sended with **kwargs have the correct type """
+            """ test if the values sended with kwargs have the correct type """
             with patch('sys.stdout', new=StringIO()) as f:
                 dic = {'first_name': "John", "age": 89}
-                HBNBCommand().onecmd("{}.update({}, {})".format(className, u.id, dic))
+                HBNBCommand().onecmd("{}.update({}, {})"
+                                     .format(className, u.id, dic))
             self.assertTrue(u.first_name == "John")
             self.assertTrue(u.age == 89)
 
@@ -386,7 +405,7 @@ Usage: update <class name> <id> <attribute name> "<attribute value>"\n\n"""
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("update User {}".format(user.id))
         self.assertEqual(f.getvalue(), "** attribute name missing **\n")
-        
+
         """ test error message when <value> is missing """
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd("update User {} attribute".format(user.id))
