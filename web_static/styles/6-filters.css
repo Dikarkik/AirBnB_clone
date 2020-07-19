@@ -49,11 +49,11 @@
 }
 
 .locations:hover .popover {
-	display: block;
+	visibility: visible;
 }
 
 .amenities:hover .popover {
-	display: block;
+	visibility: visible;
 }
 
 .popover {
@@ -62,10 +62,10 @@
 	border: 1px solid;
 	border-color: #DDDDDD;
 	border-radius: 4px;
-	display: none;
 	padding: 25px;
 	margin-top: 20px;
 	border-top: none;
+	visibility: hidden;
 }
 
 .popover h2 {
